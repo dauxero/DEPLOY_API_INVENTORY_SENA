@@ -16,14 +16,26 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(
-  cors({
-    origin: [process.env.CORS_LOCAL, process.env.CORS_DEPLOY],
-    methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  process.env.CORS_LOCAL,
+  process.env.CORS_DEPLOY, // Replace with your actual frontend domain when deployed
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
