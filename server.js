@@ -7,7 +7,6 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import reportRoutes from "./routes/reportRoutes.js";
 
 dotenv.config();
 
@@ -16,7 +15,7 @@ const app = express();
 // CORS configuration
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://inventory-sena.netlify.app"],
+    origin: ["http://localhost:3000", "https://your-frontend-url.vercel.app"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -39,7 +38,6 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/reports", reportRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
