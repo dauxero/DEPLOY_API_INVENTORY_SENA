@@ -1,35 +1,63 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./config/database.js";
+import mongoose from "mongoose";
+
+// Import routes
 import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-import inventoryRoutes from "./routes/inventoryRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 dotenv.config();
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
-
-// Middleware
+// CORS configuration
 app.use(
   cors({
-    origin: [process.env.CORS_LOCAL, process.env.CORS_DEPLOY],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    origin: ["http://localhost:3000", "https://inventory-sena.netlify.app"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/inventory", inventoryRoutes);
+// Root route
+app.get("/", (req, res) => {
+  res.json({ message: "Inventory Management API" });
+});
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+// API routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/reports", reportRoutes);
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
+
+const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+  });
+
+export default app;
