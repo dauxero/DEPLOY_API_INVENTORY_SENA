@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://inventory-sena.netlify.app/login",
+      "https://inventory-sena.netlify.app",
     ],
     credentials: true,
   })
